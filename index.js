@@ -969,6 +969,9 @@ export function apply(ctx, config) {
       if (!agent) return
       const cwd = readCwd(agent)
       if (!cwd) return
+      // 没配 root 就什么都不做：空字符串在 POSIX 上会让每个 cwd 都算「在档案目录里」，
+      // 等于把日记注进所有工程会话。宁可什么都不给。
+      if (!cfg.root) return
       const mode = insideRoot(cwd, cfg.root) ? 'full' : 'light'
       const snap = await refresh(cfg)
       const rec = { mode, text: mode === 'full' ? snap.full : snap.light, shared: '', when: mode === 'full' ? await readWhenBlock(cfg, agent.id) : '', status: await readStatusBlock(cfg), heavy: await readHeavyBlock(cfg), qq: await readQqBlock(cfg) }
