@@ -1,0 +1,12 @@
+- insert:
+    - id: ming-memory
+      name: dsh-ming-memory
+      config:
+        root: process.env.MING_ROOT || ''
+        personaFiles:
+          - persona/人设.md
+          - persona/名字.md
+          - persona/约定.md
+        diaryDir: diary
+        diaryCount: 3
+        maxChars: 12000

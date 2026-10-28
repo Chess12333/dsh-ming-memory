@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Ming's Opening Memory",
+    "description": "Injects the persona and the latest diary entries into the system prompt when a session opens in the configured folder. Read-only; never writes back."
+  }
+}
