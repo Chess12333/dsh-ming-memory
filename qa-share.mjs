@@ -18,12 +18,12 @@ const cfg = {
 }
 const m = mount(cfg)
 
-const qqS = sessionFor('onebot-private-416379918', ROOT)
+const qqS = sessionFor('onebot-private-10001', ROOT)
 const webS = sessionFor('web-abc', ROOT)
 const grpS = sessionFor('onebot-group-123456789', ROOT)
 const otherS = sessionFor('trpg', 'C:\\dsh\\trpg_web')
 
-const qqA = agentFor('onebot-private-416379918', ROOT)
+const qqA = agentFor('onebot-private-10001', ROOT)
 const webA = agentFor('web-abc', ROOT)
 const grpA = agentFor('onebot-group-123456789', ROOT)
 await m.created(qqA.agent)
@@ -55,9 +55,9 @@ check('QQ 那边看不到自己的话（只给别人的）', !qqA.text().include
 
 await sleep(1300)
 const feed = readFeed(ROOT)
-const qqEntry = feed['onebot-private-416379918'] || {}
+const qqEntry = feed['onebot-private-10001'] || {}
 const qqItems = Array.isArray(qqEntry.items) ? qqEntry.items : []
-check('feed.json 落盘', !!feed['onebot-private-416379918'])
+check('feed.json 落盘', !!feed['onebot-private-10001'])
 check('feed 里两边原话都在', qqItems.some((i) => i.r === '浔') && qqItems.some((i) => i.r === '溟'))
 check('别的工程目录没进 feed', !feed['trpg'])
 check('群是单独一间房（scope）', feed['onebot-group-123456789'] && feed['onebot-group-123456789'].scope === 'group:123456789',

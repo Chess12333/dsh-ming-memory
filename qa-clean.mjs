@@ -23,7 +23,7 @@ const cases = [
   ['Background subagent abc finished and will do no further work', false],
   ['Background job pwsh-123 finished [status: completed, exit code: 1]. Read its output', false],
   ['Time sampled while preparing turn 1, step 1: 2026-10-24T21:24:34+08:00', false],
-  ['<user_message qq="416379918" nickname="梨落千纪"> 我刚才在电脑上说了什么？ </user_message>', true],
+  ['<user_message qq="10001" nickname="梨落千纪"> 我刚才在电脑上说了什么？ </user_message>', true],
 ]
 for (const [text] of cases) m.user(s, text)
 m.user(s, '插件自己塞的话', 'plugin')

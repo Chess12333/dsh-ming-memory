@@ -8,14 +8,15 @@
  *   2. compaction/summary 进来之后，那一块出现在系统提示里，且带区间 + 取原文的路；
  *   3. 压在别的会话上不会串到这个会话。
  */
-const { apply } = await import('file:///C:/dsh/dsh-ming-memory/index.js');
+const { apply } = await import('./index.js');
 
 const handlers = {};
 const ctx = {
   on: (type, fn) => { handlers[type] = fn; },
 };
 
-apply(ctx, {});
+const ROOT = process.env.MING_ROOT || 'C:\\dsh\\hers_workplace';
+apply(ctx, { root: ROOT });
 
 const sections = [];
 const contexts = [];
