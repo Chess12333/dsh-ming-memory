@@ -1,6 +1,6 @@
 // qa-lib.mjs —— 四个 qa-*.mjs 共用的测试脚手架。
 //
-// 为什么有这个文件（2026-10-24 助手）：原来每个 qa 脚本都自己拼一遍 ctx、
+// 为什么有这个文件（2026-10-24 溟）：原来每个 qa 脚本都自己拼一遍 ctx、
 // 自己 console.log('xxx:', true/false)。结果 2026-10-24 一跑，四个里有三个
 // 在报 false——而且都是「断言还停在上一个版本的数据结构」这种假失败。
 // 假失败比没测试更糟：真的坏了也看不出来。
@@ -62,18 +62,36 @@ export function sessionFor(id, cwd) {
   return { id, header: { cwd } }
 }
 
-/** 一个会注册 systemPrompt 段的假 agent；text() 每调一次都重新取，跟真的一样 */
+/**
+ * 一个会注册 systemPrompt 段的假 agent；text() 每调一次都重新取，跟真的一样。
+ *
+ * 2026-11-05 之后真的有两处落点：
+ *   · section —— 系统提示里那一段（人设 + 日记，几乎不变，改了会打断前缀缓存）
+ *   · context —— 每步materialize 成一条排在历史末尾的 user 消息（时间感/状态/…，每步都能变）
+ * text() 是两处拼起来，老的断言照旧能用；想分开验就用 prompt() / live()。
+ */
 export function agentFor(id, cwd) {
   const sections = []
+  const contexts = []
   const agent = {
     id,
     session: { id, header: { cwd } },
-    ctx: { systemPrompt: { section: (s) => sections.push(s) } },
+    ctx: {
+      systemPrompt: {
+        section: (s) => sections.push(s),
+        context: (c) => contexts.push(c),
+      },
+    },
   }
   return {
     agent,
     section: () => sections[0],
-    text: () => (sections[0] ? sections[0].text({}) : ''),
+    context: () => contexts[0],
+    /** 系统提示那一段（应当稳定） */
+    prompt: () => (sections[0] ? sections[0].text({}) : ''),
+    /** 每步末尾那条（时间感、状态、别处的话都在这里） */
+    live: () => (contexts[0] ? contexts[0].text({}) : ''),
+    text: () => (sections[0] ? sections[0].text({}) : '') + (contexts[0] ? contexts[0].text({}) : ''),
   }
 }
 

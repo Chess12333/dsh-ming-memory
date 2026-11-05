@@ -1,4 +1,4 @@
-// qa-clean.mjs —— 验证「只留用户真的打的字」，以及双向记录/折叠的边界。
+// qa-clean.mjs —— 验证「只留浔真的打的字」，以及双向记录/折叠的边界。
 //
 // 2026-10-24 重写：旧版断言 tail/digest 两个字段，可 2026-10-20 之后数据模型换成了
 // items 数组（最近 20 条原话，溢出的压进 digest），tail 再也没人写。结果旧版两条
@@ -23,17 +23,17 @@ const cases = [
   ['Background subagent abc finished and will do no further work', false],
   ['Background job pwsh-123 finished [status: completed, exit code: 1]. Read its output', false],
   ['Time sampled while preparing turn 1, step 1: 2026-10-24T21:24:34+08:00', false],
-  ['<user_message qq="0" nickname="用户"> 我刚才在电脑上说了什么？ </user_message>', true],
+  ['<user_message qq="416379918" nickname="梨落千纪"> 我刚才在电脑上说了什么？ </user_message>', true],
 ]
 for (const [text] of cases) m.user(s, text)
 m.user(s, '插件自己塞的话', 'plugin')
-m.assistant(s, '助手回了一句。')
+m.assistant(s, '溟回了一句。')
 
 await sleep(1300)
 const entry = readFeed(ROOT)['web-1'] || {}
 const items = Array.isArray(entry.items) ? entry.items : []
-const said = items.filter((i) => i.r === '用户').map((i) => i.t).join('\n')
-const mine = items.filter((i) => i.r === '助手').map((i) => i.t).join('\n')
+const said = items.filter((i) => i.r === '浔').map((i) => i.t).join('\n')
+const mine = items.filter((i) => i.r === '溟').map((i) => i.t).join('\n')
 
 check('保留正常消息', said.includes('正常的用户消息'))
 check('剥掉 QQ 外壳、留下正文', said.includes('我刚才在电脑上说了什么') && !said.includes('<user_message'))
@@ -42,7 +42,7 @@ check('不含 job 通知', !said.includes('finished [status'))
 check('不含 Background subagent', !said.includes('Background subagent'))
 check('不含 harness 的时间戳注脚', !said.includes('Time sampled'))
 check('插件自己注入的不算她说的', !said.includes('插件自己塞的话'))
-check('助手自己回的那句也记（她说不能连自己说的话都不记得）', mine.includes('助手回了一句'))
+check('溟自己回的那句也记（她说不能连自己说的话都不记得）', mine.includes('溟回了一句'))
 check('最近 20 条以内不折叠', items.length === 3 && (entry.digest || '') === '', `items=${items.length} digest=${JSON.stringify(entry.digest || '')}`)
 
 // ---------- 二、溢出的压进 digest ----------

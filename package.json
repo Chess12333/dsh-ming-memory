@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "助手的开场记忆：把 persona 与最近几篇日记拼进系统提示词（只读，不回写）",
+  "description": "溟的开场记忆：把 persona 与最近几篇日记拼进系统提示词（只读，不回写）",
   "exports": {
     ".": "./index.js",
     "./locale/*.json": "./locale/*.json",

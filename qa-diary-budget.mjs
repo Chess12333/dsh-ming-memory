@@ -6,7 +6,7 @@ import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { mount, agentFor, check, summary } from './qa-lib.mjs'
 
-const ROOT = process.env.MING_ROOT || ''
+const ROOT = 'C:\\dsh\\hers_workplace'
 const m = mount({
   root: ROOT,
   personaFiles: ['persona/人设.md', 'persona/名字.md', 'persona/约定.md'],
