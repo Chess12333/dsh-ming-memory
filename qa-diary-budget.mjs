@@ -6,7 +6,8 @@ import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { mount, agentFor, check, summary } from './qa-lib.mjs'
 
-const ROOT = 'C:\\dsh\\hers_workplace'
+const ROOT = process.env.MING_ROOT || (await import('./index.js')).loadLocalConfig().root
+if (!ROOT) { console.error('没有工作区：设 MING_ROOT 或写 ~/.dsh/ming-memory.json 的 root'); process.exit(2) }
 const m = mount({
   root: ROOT,
   personaFiles: ['persona/人设.md', 'persona/名字.md', 'persona/约定.md'],

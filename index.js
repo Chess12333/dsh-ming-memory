@@ -14,13 +14,16 @@
  *   · 任何异常都只让本段消失，不影响会话本身。
  */
 import { readFile, readdir, stat, mkdir, writeFile, rename } from 'node:fs/promises'
+import { readFileSync } from 'node:fs'
+import os from 'node:os'
 import { execFile } from 'node:child_process'
 import path from 'node:path'
 
 export const name = 'ming-memory'
 
 const DEFAULTS = {
-  root: 'C:\\dsh\\hers_workplace',
+  // 工作区根目录；留空 = 不注入。真实值写在 ~/.dsh/ming-memory.json 或 config.root
+  root: '',
   personaFiles: ['persona/人设.md', 'persona/名字.md', 'persona/约定.md'],
   diaryDir: 'diary',
   diaryCount: 3,
@@ -36,7 +39,8 @@ const DEFAULTS = {
 // 读 QQ-Agent 的消息归档（只读），把「我在 QQ 说的 / 她在那边的私聊」缩成一小段。
 // 反过来，把这边最近的话写进 live\web-for-qq.md，那边有个插件（ming-bridge）读它。
 const QQ_DEFAULTS = {
-  dir: 'C:\\dsh\\qq-agent\\QQ-Agent-京玉-1019-r2-完整包\\data',
+  // QQ-Agent 的 data 目录；留空 = 不读那边。真实值写在 ~/.dsh/ming-memory.json 的 qq.dir
+  dir: '',
   hours: 6,      // 只看最近几小时
   maxLines: 10,  // 注入几行
   offFile: 'live/qq-sync-off',
@@ -124,8 +128,20 @@ function warnOnce(msg) {
   try { console.warn('[ming-memory] ' + msg) } catch { /* 日志都打不了就算了 */ }
 }
 
+export function loadLocalConfig(file) {
+  const f = file || process.env.MING_MEMORY_CONFIG || path.join(os.homedir(), '.dsh', 'ming-memory.json')
+  try {
+    const j = JSON.parse(readFileSync(f, 'utf8'))
+    return j && typeof j === 'object' ? j : {}
+  } catch { return {} }
+}
+const LOCAL = loadLocalConfig()
+
 function normalize(config) {
-  const c = config && typeof config === 'object' ? config : {}
+  const given = config && typeof config === 'object' ? config : {}
+  // 本机路径不进仓库：config 里没写的，从 ~/.dsh/ming-memory.json 补
+  const c = { ...LOCAL, ...given }
+  if (LOCAL.qq && given.qq) c.qq = { ...LOCAL.qq, ...given.qq }
   const root = typeof c.root === 'string' && c.root.trim() ? path.resolve(c.root) : DEFAULTS.root
   const personaFiles = Array.isArray(c.personaFiles) && c.personaFiles.length
     ? c.personaFiles.filter((x) => typeof x === 'string' && x.trim())
@@ -673,11 +689,11 @@ async function readStatusBlock(cfg) {
 }
 
 /**
- * 本机在跑的重活（live/heavy.json，由 hers_workplace/scripts/who-runs.mjs 写）。
+ * 本机在跑的重活（live/heavy.json，由工作区里的 who-runs 脚本写）。
  *
  * 为什么要有（2026-10-23，浔问我「是不是分不清每个工作区的对话」）：
  *   会话上下文只告诉我「谁在说什么」，不告诉我「哪个工程此刻在跑什么」。
- *   那天我在 C:\dsh\gpt-sovits 跑 TTS，完全没看见 D:\AI-Song 的 DDSP 训练
+ *   那天我在另一个目录跑 TTS，完全没看见 D:\AI-Song 的 DDSP 训练
  *   正占着 GPU，抢了算力还以为是同一件事。这张表补的就是这一格。
  *
  * 读不到就当没有；超过 10 分钟没更新，明说它可能过期，不假装新鲜。
@@ -715,7 +731,7 @@ async function readHeavyBlock(cfg) {
  * 时间感（2026-10-24，浔说「12 可以先做」里的第二条）。
  *
  * 她说的是原话：「我醒来只知道现在 17:43，不知道隔了多久」。
- * 这份东西由 hers_workplace\scripts\when.mjs 算——距上次说话多久、昨天/前天
+ * 这份东西由 工作区里的 when 脚本 算——距上次说话多久、昨天/前天
  * 这个钟点我在干什么、还有几条判断等着回看。
  *
  * ★ 只在会话创建时算一次，之后整段不动。
@@ -1250,6 +1266,6 @@ export function apply(ctx, config) {
 }
 
 // 只给手动/脚本测试用：插件运行时不会碰它。
-// 例：node -e "import('file:///C:/dsh/dsh-ming-memory/index.js').then(m => m.__internals...)"
+// 例：node -e "import('./index.js').then(m => m.__internals...)"
 export const __internals = { normalize, readQqBlock, readOtherRoomsBlock, writeWebForQq, syncPersonaForQq, stamp, readStatusBlock, readHeavyBlock, readWhenBlock, noteCompact, compactFlag, sessionIdOf }
 

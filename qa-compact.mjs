@@ -15,14 +15,15 @@ const ctx = {
   on: (type, fn) => { handlers[type] = fn; },
 };
 
-const ROOT = process.env.MING_ROOT || 'C:\\dsh\\hers_workplace';
+const ROOT = process.env.MING_ROOT || (await import('./index.js')).loadLocalConfig().root
+if (!ROOT) { console.error('没有工作区：设 MING_ROOT 或写 ~/.dsh/ming-memory.json 的 root'); process.exit(2) }
 apply(ctx, { root: ROOT });
 
 const sections = [];
 const contexts = [];
 const agent = {
   id: 'qa-agent-1',
-  session: { header: { id: 'qa-sess-1', cwd: 'C:\\dsh\\hers_workplace' } },
+  session: { header: { id: 'qa-sess-1', cwd: ROOT } },
   ctx: { systemPrompt: { section: (def) => sections.push(def), context: (def) => contexts.push(def) } },
 };
 
@@ -84,7 +85,7 @@ check('第二次压完次数变 2', twice.includes('压缩过 2 次'));
 check('只显示最新那次的区间', twice.includes('seq 400–512') && !twice.includes('seq 41–318'));
 
 // 别的会话不受影响
-const other = { header: { id: 'qa-sess-2', cwd: 'C:\\dsh\\hers_workplace' } };
+const other = { header: { id: 'qa-sess-2', cwd: ROOT } };
 const otherSections = [];
 const otherContexts = [];
 const otherAgent = { id: 'qa-agent-2', session: other, ctx: { systemPrompt: { section: (d) => otherSections.push(d), context: (d) => otherContexts.push(d) } } };

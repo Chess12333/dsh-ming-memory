@@ -4,9 +4,11 @@
 // 状态、重活、别的会话、QQ 那边几块动态内容（加起来两千多字）。于是它天天报
 // 「别处=轻量版: false」，其实轻量版一直好好的。现在分开量：只卡片子里那段身份，
 // 动态块单独验。
+import path from 'node:path'
 import { mount, sessionFor, agentFor, check, summary } from './qa-lib.mjs'
 
-const ROOT = 'C:\\dsh\\hers_workplace'
+const ROOT = process.env.MING_ROOT || (await import('./index.js')).loadLocalConfig().root
+if (!ROOT) { console.error('没有工作区：设 MING_ROOT 或写 ~/.dsh/ming-memory.json 的 root'); process.exit(2) }
 const m = mount({
   root: ROOT,
   personaFiles: ['persona/人设.md', 'persona/名字.md', 'persona/约定.md'],
@@ -36,8 +38,8 @@ async function probe(id, cwd) {
 }
 
 const full = await probe('a1', ROOT)
-const light = await probe('a2', 'C:\\dsh\\trpg_web')
-const sub = await probe('a3', 'C:\\dsh\\hers_workplace\\diary')
+const light = await probe('a2', process.env.MING_OTHER_ROOT || path.join(ROOT, '..', 'other-workspace'))
+const sub = await probe('a3', path.join(ROOT, 'diary'))
 
 console.log(`档案目录：整段 ${full.text.length} 字，其中身份 ${full.ident.length} 字`)
 console.log(`别的工作目录：整段 ${light.text.length} 字，其中身份 ${light.ident.length} 字`)
