@@ -21,7 +21,7 @@ const m = mount(cfg)
 const qqS = sessionFor('onebot-private-10001', ROOT)
 const webS = sessionFor('web-abc', ROOT)
 const grpS = sessionFor('onebot-group-123456789', ROOT)
-const otherS = sessionFor('trpg', 'C:\\dsh\\trpg_web')
+const otherS = sessionFor('trpg', tempRoot('ming-share-other-'))
 
 const qqA = agentFor('onebot-private-10001', ROOT)
 const webA = agentFor('web-abc', ROOT)
